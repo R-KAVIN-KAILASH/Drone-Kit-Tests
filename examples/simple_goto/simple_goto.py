@@ -16,26 +16,33 @@ from dronekit import connect, VehicleMode, LocationGlobalRelative
 
 
 # Set up option parsing to get connection string
-import argparse
-parser = argparse.ArgumentParser(description='Commands vehicle using vehicle.simple_goto.')
-parser.add_argument('--connect',
-                    help="Vehicle connection target string. If not specified, SITL automatically started and used.")
-args = parser.parse_args()
+# import argparse
+# parser = argparse.ArgumentParser(description='Commands vehicle using vehicle.simple_goto.')
+# parser.add_argument('--connect',
+#                     help="Vehicle connection target string. If not specified, SITL automatically started and used.")
+# args = parser.parse_args()
 
-connection_string = args.connect
+connection_string = 'tcp:127.0.0.1:5760'
 sitl = None
 
-
-# Start SITL if no connection string specified
-if not connection_string:
-    import dronekit_sitl
-    sitl = dronekit_sitl.start_default()
-    connection_string = sitl.connection_string()
 
 
 # Connect to the Vehicle
 print('Connecting to vehicle on: %s' % connection_string)
 vehicle = connect(connection_string, wait_ready=True)
+
+
+vehicle.parameters['EKF_GPS_TYPE']= 3
+vehicle.parameters['EKF_ALT_SOURCE']= 1
+vehicle.parameters['AHRS_EKF_TYPE']= 3
+vehicle.parameters['EK2_ENABLE']= 0
+vehicle.parameters['EK3_ENABLE']= 1
+vehicle.parameters['GPS_TYPE']= 0
+print('Parameters are set !!')
+
+
+vehicle.message_factory.
+
 
 
 def arm_and_takeoff(aTargetAltitude):
@@ -80,21 +87,21 @@ print("Set default/target airspeed to 3")
 vehicle.airspeed = 3
 
 print("Going towards first point for 30 seconds ...")
-point1 = LocationGlobalRelative(-35.361354, 149.165218, 20)
+point1 = LocationGlobalRelative(5, 5, 5)
 vehicle.simple_goto(point1)
 
 # sleep so we can see the change in map
 time.sleep(30)
 
 print("Going towards second point for 30 seconds (groundspeed set to 10 m/s) ...")
-point2 = LocationGlobalRelative(-35.363244, 149.168801, 20)
+point2 = LocationGlobalRelative(5, 3, 5)
 vehicle.simple_goto(point2, groundspeed=10)
 
 # sleep so we can see the change in map
 time.sleep(30)
 
-print("Returning to Launch")
-vehicle.mode = VehicleMode("RTL")
+print("Landing!!")
+vehicle.mode = VehicleMode("LAND")
 
 # Close vehicle object before exiting script
 print("Close vehicle object")
